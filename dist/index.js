@@ -49,9 +49,19 @@ app.post('/kierunki', (req, res) => {
         .status(201)
         .json(createdKierunek);
 });
+// app.delete('/kierunki/:id', (req, res) => {
+//   db.kierunki = db.kierunki.filter(c => c.id !== +req.params.id)
+//   res.sendStatus(204)
+// })
 app.delete('/kierunki/:id', (req, res) => {
-    db.kierunki = db.kierunki.filter(c => c.id !== +req.params.id);
-    res.sendStatus(204);
+    for (let i = 0; i < db.kierunki.length; i++) {
+        if (db.kierunki[i].id === +req.params.id) {
+            db.kierunki.splice(i, 1);
+            res.send(204);
+            return;
+        }
+    }
+    res.send(404);
 });
 app.put('/kierunki/:id', (req, res) => {
     if (!req.body.title) {
@@ -65,6 +75,15 @@ app.put('/kierunki/:id', (req, res) => {
     }
     foundKierunek.title = req.body.title;
     res.sendStatus(204);
+});
+app.get('/kierunki/:id', (req, res) => {
+    if (req.query.title) {
+        let searchString = req.query.title.toString();
+        res.send(db.kierunki.filter(c => c.title.indexOf(searchString) > -1));
+    }
+    else {
+        res.send(db.kierunki);
+    }
 });
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
